@@ -1,0 +1,51 @@
+5.To use nmap for network discovery and security auditing.
+
+step1:
+install nmap
+sudo apt-get install nmap
+
+step2:
+nmap -sP 10.0.2.15--->system ip
+
+step3:
+nmap -sP 10.0.2.15/24
+
+step4:
+nmap -p 80,21,23 10.0.2.15
+
+step5:
+nmap -open 10.0.2.15
+
+step6:
+nmap --top-ports 5 10.0.2.15
+
+step7:
+nmap -sS 5 10.0.2.15
+
+step8:
+sudo nmap -sS 5 10.0.2.15
+
+step9:
+sudo nmap -sT 5 10.0.2.15
+
+step10:
+sudo nmap -sU 5 10.0.2.15
+
+step11:
+sudo nmap -sV 5 10.0.2.15
+
+step12:
+sudo nmap -sI 5 10.0.2.15
+
+step13:
+sudo nmap -O 5 10.0.2.15
+
+step14:
+nmap -sP 192.168.43.32 192.168.43.169
+
+
+
+
+
+
+
