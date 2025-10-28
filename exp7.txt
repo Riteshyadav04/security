@@ -1,0 +1,186 @@
+Phase 1: Snort Installation & Configuration
+Step 1: Install Snort
+First, update your package lists and install the Snort package.
+
+Bash
+
+sudo apt-get update
+sudo apt-get dist-upgrade
+sudo apt-get install snort
+Step 2: Configure Your Home Network
+You must tell Snort which network to protect. Edit the configuration file (this command opens vi directly to line 45).
+
+Bash
+
+sudo nano  /etc/snort/snort.conf
+Change the ipvar HOME_NET line to match your network range.
+
+Bash
+
+# Line 65
+ipvar HOME_NET 192.168.96.0/24 (your system IP)
+IP Usage:  This defines your internal network (192.168.96.0/24) as the one to be protected.
+
+Step 3: Configure Rule & Library Paths
+Next, ensure Snort knows where to find its rule files (this command opens vi to line 104).
+
+Bash
+
+sudo vi  /etc/snort/snort.conf
+Verify that the paths are set correctly. They should look like this:
+
+Bash
+
+# Lines 
+var RULE_PATH /etc/snort/rules
+var SO_RULE_PATH /etc/snort/so_rules
+var PREPROC_RULE_PATH /etc/snort/preproc_rules
+var WHITE_LIST_PATH /etc/snort/rules/
+var BLACK_LIST_PATH /etc/snort/rules/
+
+Step 4: Enable Local Rules File
+Snort needs to be told to load your custom rules. Go to line 590.
+
+Bash
+
+sudo vi  /etc/snort/snort.conf
+Uncomment the line to include local.rules, which is where you'll add your own rules.
+
+Bash
+
+# Line 590
+include $RULE_PATH/local.rules
+
+Step 5: Validate Configuration
+Before running Snort, test your configuration file for any errors.
+
+Bash
+
+sudo snort -T -c /etc/snort/snort.conf
+
+Expected Output: You should see a success message.
+
+Plaintext
+
+Snort successfully validated the configuration!
+
+Phase 2: Test 1 - ICMP Ping Detection
+Step 1: Create the ICMP Rule
+Add a custom rule to detect ICMP (ping) traffic.
+
+Bash
+
+sudo gedit /etc/snort/rules/local.rules
+Add the following line to the file:
+
+Bash
+
+alert icmp any any -> $HOME_NET any (msg:"ICMP test"; sid:1000001; rev:1;)
+
+
+
+Step 2: Run Snort in IDS Mode
+Now, run Snort as an IDS, printing alerts to the console (-A console).
+
+Bash
+
+sudo snort -A console -c /etc/snort/snort.conf
+Expected Output: Snort will initialize and wait for packets.
+
+Plaintext
+
+--== Initialization Complete ==--
+   ,,_     -*> Snort! <*-
+  o"  )~   Version 2.9.15.1 GRE (Build 15125)
+   ''''    By Martin Roesch & The Snort Team
+...
+Commencing packet processing
+
+Step 3: Generate Test Traffic (Ping)
+From your friend's machine (e.g., 192.168.96.x), ping your machine (the one running Snort, e.g., 192.168.96.15).
+
+Bash
+
+# On friend's machine
+ping 192.168.96.15
+IP Usage: 🎯 Friend's IP → 🏠 Your Protected IP.
+
+Step 4: Monitor Console for Alerts
+Watch the terminal where Snort is running. You should see alerts appear for each ping.
+
+Bash
+
+10/29-00:15:16.008427 [**] [1:1000001:1] ICMP test [**] [Priority: 0] {ICMP} 192.168.96.12 -> 192.168.96.15
+This shows an alert for traffic from the "attacker" (🎯 192.168.96.12) to your machine (🏠 192.168.96.15).
+
+Phase 3: Test 2 - TCP Scan Detection
+Step 1: Stop the Running Snort Process
+Go back to the Snort terminal and press Ctrl+C to stop it.
+
+Step 2: Add the TCP Rule
+Now, let's add the new rule you wanted to test.
+
+Bash
+
+sudo gedit /etc/snort/rules/local.rules
+Add this new line below your ICMP rule:
+
+Bash
+
+alert tcp any any -> $HOME_NET 80 (msg:"TCP Port 80 Scan"; sid:1000002; rev:1;)
+
+
+Step 3: Rerun Snort in IDS Mode
+Run Snort again just as you did before to load the new rule.
+
+Bash
+
+sudo snort -A console -c /etc/snort/snort.conf
+
+Step 4: Generate Test Traffic (Nmap Scan)
+From your friend's machine, use nmap to scan port 80 on your Snort machine.
+
+Bash
+
+# On friend's machine
+nmap -p 80 192.168.96.15
+IP Usage: 🎯 Friend's IP → 🏠 Your Protected IP (specifically port 80).
+
+Step 5: Monitor Console for Alerts
+Watch the Snort console. You will see new alerts for the TCP scan, using the sid:1000002 rule.
+
+Bash
+
+10/29-00:18:22.003141 [**] [1:1000002:1] TCP Port 80 Scan [**] [Priority: 0] {TCP} 192.168.96.12:51234 -> 192.168.96.15:80
+This shows the Nmap scan (from a random port 51234) hitting port 80 on your machine.
+
+Phase 4: Analyzing Log Files
+When you are finished testing, stop Snort with Ctrl+C. By default, Snort also logs alerts and packets to /var/log/snort/.
+
+Step 1: Locate Snort Logs
+Bash
+
+cd /var/log/snort
+ls
+Expected Files: You will see the alert log and binary log files (with timestamps).
+
+Plaintext
+
+snort.alert.1    snort.log.1757673264
+snort.log.1      snort.log.1758856928
+
+Step 2: Read Human-Readable Alerts
+The .alert file contains the same alerts you saw on the console.
+
+Bash
+
+cat snort.alert.1
+This file will contain detailed information about both the "ICMP test" and "TCP Port 80 Scan" alerts.
+
+Step 3: Read Binary Packet Logs
+Snort also saves the full packets that triggered the alerts in a binary tcpdump format. You can read them with tcpdump (or Wireshark).
+
+Bash
+
+sudo tcpdump -r snort.log.1758856928  --> optional and change log id when doing
+This will show you the raw packet data for all captured traffic, allowing for deeper analysis.
