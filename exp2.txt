@@ -1,0 +1,178 @@
+Completely Purge Old Squid Configs: This command removes the Squid package and all of its system configuration files (like the old squid.conf).
+
+Bash
+
+sudo apt-get purge squid -y
+Remove the Old Password File (if it exists): The purge command might miss this since it was manually created.
+
+Bash
+
+sudo rm -f /etc/squid/passwd
+That's it. Now your system is perfectly clean.
+
+Start with
+
+
+Here is a complete, error-proof guide from scratch.
+
+The previous errors happened for two main reasons:
+
+1.  The path `/usr/lib/squid3/` is old and incorrect.
+2.  The Squid service was restarted *before* the password file (`/etc/squid/passwd`) was created.
+
+This guide fixes the order of operations, uses the correct commands, and gives you a single block of code to create your configuration file perfectly, avoiding all previous errors.
+
+-----
+
+### **The "One-Go" Squid Proxy Guide**
+
+#### **Step 1: Install Squid and HTPasswd**
+
+First, update your packages and install `squid` and `apache2-utils` (which provides the `htpasswd` command).
+
+```bash
+sudo apt-get update
+sudo apt-get install squid apache2-utils
+```
+
+#### **Step 2: Check Initial Status**
+
+The service should start automatically. Let's check it.
+
+```bash
+sudo systemctl status squid
+```
+
+(You should see `Active (running)`. Press `q` to exit the status view).
+
+#### **Step 3: Back Up the Original Config**
+
+This creates a backup, just in case.
+
+```bash
+sudo mv /etc/squid/squid.conf /etc/squid/squid.conf.bkp
+```
+
+#### **Step 4: Create the Proxy User and Password File**
+
+We do this **before** restarting the service. This command creates the file `/etc/squid/passwd` and adds the user `ismaeel`.
+
+```bash
+sudo htpasswd -c /etc/squid/passwd ismaeel
+```
+
+You will be prompted to enter and re-type a new password for "ismaeel".
+
+#### **Step 5: Create the New Configuration File**
+
+This is the most important step. **Copy and paste this entire block of code** into your terminal. It uses `tee` to write the correct configuration file as root, avoiding all permission errors and syntax problems.
+
+The `auth_param` line has been corrected to use the modern path `/usr/lib/squid/basic_ncsa_auth`.
+
+```bash
+sudo tee /etc/squid/squid.conf > /dev/null <<EOF
+# --- Basic ACL elements ---
+acl localhost src 127.0.0.1/32
+acl localnet src 192.168.0.40/24 192.168.0.0/16
+
+# --- Authentication Configuration ---
+# This is the corrected path that fixed our previous error
+auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
+auth_param basic credentialsttl 30 minutes
+auth_param basic casesensitive on
+auth_param basic realm Squid proxy-caching web server for APSIT
+
+# --- Authentication ACL ---
+acl ncsa proxy_auth REQUIRED
+
+# --- Access List Rules (ORDER IS IMPORTANT) ---
+# 1. Allow authenticated users
+http_access allow ncsa
+
+# 2. Allow from your local machine (localhost)
+http_access allow localhost
+
+# 3. Allow from your local network (e.g., 192.168.x.x)
+http_access allow localnet
+
+# 4. Block ALL other access
+http_access deny all
+
+# --- Visible Hostname ---
+visible_hostname APSIT-Proxy-Server
+EOF
+
+```
+
+#### **Step 6: Restart and Verify Squid**
+
+Now that the config file is correct AND the password file exists, the restart will work.
+
+```bash
+sudo systemctl restart squid
+sudo systemctl status squid
+```
+
+You should see a green `Active (running)` message. If you do, your proxy server is 100% working.
+
+#### **Step 7: Configure Firefox Proxy Settings**
+
+1.  In Firefox, go to **Preferences** --> **Network Settings** --> **Settings**.
+2.  Select **Manual proxy configuration**.
+3.  In **HTTP Proxy**, enter your computer's IP address (e.g., `192.168.1.100`).
+4.  Set the **Port** to `3128`.
+5.  Click **OK**.
+
+#### **Step 8: Test Authentication and "Allow" Logs**
+
+1.  In a terminal, run this command to watch the log file:
+    ```bash
+    sudo tail -f /var/log/squid/access.log
+    ```
+2.  In Firefox, go to any website (like `google.com`).
+3.  A pop-up will ask for your credentials. Enter:
+      * **Username:** `ismaeel`
+      * **Password:** (The password you created in Step 4)
+4.  The page will load. Look at your terminal. You will see lines like this:
+    ```text
+    ... 192.168.70.1 TCP_TUNNEL/200 3988 CONNECT google.com:443 Abhi HIER_DIRECT/- text/html
+    ```
+    `TCP_TUNNEL/200` means **SUCCESS**. This proves your authentication is working.
+
+#### **Step 9: (Optional) Test the "DENIED" Log**
+
+The `TCP_DENIED/403` log you asked about will only appear if you **block** a site. Let's block Facebook.
+
+1.  Open the config file:
+
+    ```bash
+    sudo nano /etc/squid/squid.conf
+    ```
+
+2.  Go to the **TOP** of the file (above all other `acl` lines) and add these two lines:
+
+    ```bash
+    acl blocked_sites dstdomain .facebook.com
+    http_access deny blocked_sites
+    ```
+
+3.  Save and exit (Ctrl+O, Enter, Ctrl+X).
+
+4.  Restart Squid:
+
+    ```bash
+    sudo systemctl restart squid
+    ```
+
+5.  Watch the log for "facebook":
+
+    ```bash
+    sudo tail -f /var/log/squid/access.log | grep facebook
+    ```
+
+6.  Go to `facebook.com` in your browser. It will be blocked. Now, your terminal **will** show the denied log:
+
+    ```text
+    ... 192.168.70.1 TCP_DENIED/403 4090 CONNECT facebook.com:443 Abhi HIER_NONE/- text/html
+    ```
+
