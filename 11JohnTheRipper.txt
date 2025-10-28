@@ -1,0 +1,31 @@
+11) Aim: To study password cracking using John the ripper.
+
+step1:
+sudo apt-get install john
+
+step2:
+john -test
+
+step3:
+sudo adduser pooja
+
+step4:
+sudo cat /etc/shadow 
+this will show you user that you have created 
+pooja:$6$0OBY0HfFLpuW8b4N$d7sY4r4IDSlTfCf0zAwUcyiaT48rLVrjD.i/DAjoWkE37Dz3BQWPYP0rvxg45sFguzYu3NRHM1vdC0S6HeOhJ1:20385:0:99999:7:::
+like this copy this nad paste in nano file
+
+step5:
+ nano p1.txt    ->paste in this 
+ cat p1.txt    ->view
+ 
+ 
+ step6:
+ john --format=crypt p1.txt
+press any key 
+
+step7:
+ john --show p1.txt
+
+
+
