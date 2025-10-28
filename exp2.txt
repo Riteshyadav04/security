@@ -123,6 +123,13 @@ You should see a green `Active (running)` message. If you do, your proxy server 
 4.  Set the **Port** to `3128`.
 5.  Click **OK**.
 
+if above setting not found use this one (OR)
+
+1. Click the "hamburger" menu button (the three horizontal lines ☰) in the top-right corner.
+2. Select "Settings" from the dropdown menu.
+3. You will land on the "General" panel. Scroll all the way to the bottom.
+4. You will see a section called "Network Settings". Click the "Settings..." button on the right.
+
 #### **Step 8: Test Authentication and "Allow" Logs**
 
 1.  In a terminal, run this command to watch the log file:
