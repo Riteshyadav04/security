@@ -1,0 +1,55 @@
+4.Aim: To study analysis of network packets by sing open source sniffing toolslike tcpdump and Wireshark in promiscuous and non-promiscuous mode.
+
+step1:
+sudo apt update
+sudo apt-get install tcpdump
+
+step2:
+tcpdump -D
+
+step3:
+install wireshark
+sudo apt update
+sudo apt install wireshark -y
+
+step4:
+ifconfig(check the system name)
+
+step5:
+sudo tcpdump -i any -c 5
+
+step6:
+sudo tcpdump -i enp0s3--->system name of cllg
+
+step7:
+sudo tcpdump -i enp0s3 -c 5
+
+step8:
+sudo tcpdump -i enp0s3 src 10.0.2.15--->system ip and name
+
+step9:
+sudo tcpdump -i enp0s3 dst 10.0.2.15--->system ip and name
+
+step10:
+sudo tcpdump -i enp0s3 'tcp[tcpflags] & tcp-syn != 0' -w /home/apsit/Desktop/syn.pcap
+
+step11:
+sudo tcpdump -i enp0s3 'tcp[tcpflags] & tcp-fin != 0' -w /home/apsit/Desktop/syn.pcap
+
+step12:
+sudo tcpdump -i enp0s3 -x -X -A -nvvv port 22 > ssh.txt
+
+step13:
+sudo tcpdump -i enp0s3 -x -X -A -nvvv port 23 > telnet.txt 
+
+step14:
+sudo tcpdump -i enp0s3 'tcp[tcpflags] & tcp-ack != 0' -w /home/apsit/Desktop/ack.txt
+
+step15:(alternative command)
+sudo tcpdump -i enp0s3 -w /home/apsit/Desktop/fin.pcap 'tcp[tcpflags] & (tcp-syn) != 0'
+
+
+
+
+
+
