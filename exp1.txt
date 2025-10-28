@@ -1,1 +1,208 @@
 IP and Mac Spoofing
+
+Here are the steps to install Netkit-JH:
+
+1. Download the Installation Script
+You need to get the latest installation script from the Netkit-JH GitHub releases page.
+
+Go to the releases page: https://github.com/netkit-jh/netkit-jh/releases
+
+Find the latest release (e.g., v1.2.1).
+
+Download the install-netkit-jh-vX.Y.Z.sh file (where X.Y.Z is the version number).
+
+After downloading, you need to give the script permission to run.
+
+Bash
+
+# Replace with the exact filename you downloaded
+chmod +x install-netkit-jh-v1.2.1.sh
+
+Now, run the installer. It will install Netkit-JH in a directory called netkit-jh inside your home directory ($HOME).
+
+Bash
+
+# Replace with the exact filename
+./install-netkit-jh-v1.2.1.sh
+
+now run
+cd netkit-jh
+
+then run
+ls
+
+your ./check_configuration.sh will be present inside scripts so cd into that script and then run 
+ls --> you will see ./check_configuration.sh
+
+run this 
+./check_configuration.sh
+
+now make pcs directly
+vstart pc1 --eth0=A
+vstart pc2 --eth0=A
+vstart pc3 --eth0=A
+
+Assign static IP addresses to each virtual machine.
+
+On PC1 Terminal:
+
+Bash
+ifconfig eth0 192.168.1.11
+
+On PC2 Terminal:
+
+Bash
+ifconfig eth0 192.168.1.12
+
+On PC3 Terminal:
+
+Bash
+ifconfig eth0 192.168.1.13
+
+
+Step 1. Verify Normal Connectivity (On PC1)
+
+First, send a normal ping to confirm the network is working.
+
+Bash
+
+ping 192.168.1.13
+
+Step 2. Start Packet Monitoring (On PC2 - Victim)
+
+Start tcpdump on the "victim" machine. This will show us all traffic. We don't expect to see anything yet.
+
+Bash
+
+tcpdump -i any
+
+
+Step 3. Configure IP Spoofing (On PC1 - Attacker)
+
+This iptables rule intercepts all outgoing ICMP packets from PC1 and rewrites their source address to be PC2's IP (192.168.1.12).
+
+Bash
+
+sudo iptables -t nat -A POSTROUTING -p icmp -j SNAT --to-source 192.168.1.12
+
+
+Step 4. Execute Spoofed Ping (On PC1 - Attacker)
+
+Now, send the same ping as in Step 1.
+
+Bash
+
+ping 192.168.1.13
+
+
+
+Now MAC SPOOFING
+
+First start two ubuntu system and this can not be done in single ubuntu system as we require two MAC address
+after run ping command on both pcs so that they can be a known for each other
+
+Phase 1: Setup & Baseline
+On 💻-2️⃣ PC2 (Victim / Monitor):
+
+Install arpwatch:
+
+Bash
+
+sudo apt install arpwatch
+Check arpwatch Status:
+
+Bash
+
+sudo systemctl status arpwatch
+It should be active (running).
+
+Monitor System Logs:
+
+Open a new, separate terminal and leave it running for the whole experiment.
+
+Bash
+
+tail -f /var/log/syslog
+On 💻-1️⃣ PC1 (Attacker):
+
+Establish Initial Connection:
+
+Ping PC2 to make sure it's reachable.
+
+Bash
+
+ping  [PC2_IP_ADDRESS]
+
+On 💻-2️⃣ PC2 (Victim / Monitor):
+
+Check Original ARP Table:
+
+Now that the machines have communicated, check PC2's ARP table.
+
+Bash
+
+arp -e
+Find the line for PC1's IP address. Note the original MAC address listed for it. This is your "before" state.
+
+Example:
+
+Plaintext
+
+Address          HWtype  HWaddress           Flags Mask            Iface
+[PC1_IP_ADDRESS] ether   [PC1_ORIGINAL_MAC]  C                     enp4s0
+...
+Phase 2: Attack Execution
+On 💻-1️⃣ PC1 (Attacker):
+
+Change Your MAC Address:
+
+Use the interface name you found in the prerequisites. Let's use 18:60:24:af:0e:5d as the new spoofed MAC.
+
+Bash
+
+sudo ifconfig enp4s0 hw ether 18:60:24:af:0e:5d
+(Note: This command may temporarily disconnect you if you are on a secured network.)
+
+Generate Traffic with Spoofed MAC:
+
+Ping PC2 again. This forces PC1 to send packets to PC2 using its new, spoofed MAC address.
+
+Bash
+
+ping  [PC2_IP_ADDRESS]
+
+Phase 3: Post-Attack Analysis
+On 💻-2️⃣ PC2 (Victim / Monitor):
+
+Verify ARP Spoofing Success (Check ARP Table):
+
+Run the arp -e command again.
+
+Bash
+
+arp -e
+Look at the line for PC1's IP address again.
+
+Expected Output / Success Indicator:
+
+Plaintext
+
+Address          HWtype  HWaddress           Flags Mask            Iface
+[PC1_IP_ADDRESS] ether   18:60:24:af:0e:5d   C                     enp4s0
+You should see that the HWaddress for PC1's IP has changed from its original MAC to the new, spoofed MAC (...:5d). This confirms PC2's ARP table has been successfully updated (poisoned).
+
+Monitor Log File Changes (Check arpwatch):
+
+Look at your syslog terminal (from Step 3).
+
+arpwatch will have detected and logged the change.
+
+Expected Log Entry:
+
+Plaintext
+
+... arpwatch: changed ethernet address [PC1_ORIGINAL_MAC] 18:60:24:af:0e:5d
+
+
+
+
