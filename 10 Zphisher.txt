@@ -1,0 +1,19 @@
+10.To simulate a phishing attack using Zphisher.
+
+step1:
+cd Downloads
+git clone https://github.com/htr-tech/zphisher.git
+
+step2:
+ls
+cd zphisher
+bash zphisher.sh
+
+step3:
+select type of attack
+eg-insta
+01 login page
+01=localhost
+custom3 port=yes
+choose custom port(3000)
+open the link 
