@@ -1,0 +1,25 @@
+12.  To study and test message integrity by using MD5, SHA-1 for varying
+message sizes.
+
+step1:
+cd /home/siddhi/Music
+
+step2:
+echo this is demo of md5sum>example.txt
+
+step3:
+md5sum example.txt
+
+step4:
+Download
+https://mirror.ihost.md/ubuntu-releases/releases/14.04.6/ubuntu-14.04.6-server-amd64.iso
+
+step5:
+paste it in Music folder
+
+step6:
+sha256sum ubuntu-14.04.6-server-amd64.iso
+
+check with this website:
+https://releases.ubuntu.com/trusty/
+
