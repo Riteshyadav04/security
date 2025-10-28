@@ -1,0 +1,185 @@
+## **Network Setup Required:**
+
+**You need TWO machines for this experiment:**
+
+- 🔴 **RED Machine (Your machine):** **`192.168.104.13`**
+- 🔵 **BLUE Machine (Friend's machine):** **`192.168.104.14`**
+- **Subnet:** **`192.168.104.0/24`**
+
+## **Step 1: Install StrongSwan on BOTH Machines**
+
+**On RED machine (192.168.104.13):**
+
+`bash`
+
+sudo apt-get update
+sudo apt-get install ipsec-tools strongswan-starter
+
+**On BLUE machine (192.168.104.14):**
+
+`bash`
+
+sudo apt-get update
+sudo apt-get install ipsec-tools strongswan-starter
+
+**IP Usage:** 🔴🔵 **Both machines** need IPsec software
+
+## **Step 2: Configure IPsec on RED Machine**
+
+`bash`
+
+sudo nano /etc/ipsec.conf
+
+**Configuration:**
+
+`bash`
+
+conn red-to-blue
+    authby=secret
+    auto=route
+    keyexchange=ikev2
+    ike=aes128-md5-modp1024
+    left=192.168.104.13
+    right=192.168.104.14
+    type=transport
+    esp=aes128-sha1-modp1024!
+
+**IP Usage:**
+
+- 🔴 **left=192.168.104.13** (YOUR machine - RED)
+- 🔵 **right=192.168.104.14** (FRIEND'S machine - BLUE)
+
+## **Step 3: Configure IPsec on BLUE Machine (Friend's machine)**
+
+`bash`
+
+sudo nano /etc/ipsec.conf
+
+**Configuration:**
+
+`bash`
+
+conn blue-to-red
+    authby=secret
+    auto=route
+    keyexchange=ikev2
+    ike=aes128-md5-modp1024
+    left=192.168.104.14
+    right=192.168.104.13
+    type=transport
+    esp=aes128-sha1-modp1024!
+
+**IP Usage:**
+
+- 🔵 **left=192.168.104.14** (FRIEND'S machine - BLUE)
+- 🔴 **right=192.168.104.13** (YOUR machine - RED)
+
+## **Step 4: Configure Pre-shared Keys on BOTH Machines**
+
+**On RED machine:**
+
+`bash`
+
+sudo nano /etc/ipsec.secrets
+
+**Add:**
+
+`bash`
+
+192.168.104.13 192.168.104.14 : PSK "mysecretkey123"
+
+**On BLUE machine:**
+
+`bash`
+
+sudo nano /etc/ipsec.secrets
+
+**Add:**
+
+`bash`
+
+192.168.104.14 192.168.104.13 : PSK "mysecretkey123"
+
+**IP Usage:** 🔴🔵 **Both IPs** must share the SAME pre-shared key
+
+## **Step 5: Start IPsec on BOTH Machines**
+
+**On both machines:**
+
+`bash`
+
+sudo ipsec start
+sudo ipsec reload
+
+## **Step 6: Establish VPN Connection**
+
+**From RED machine (your machine):**
+
+`bash`
+
+sudo ipsec up red-to-blue
+
+**Expected Success Output:**
+
+`text`
+
+connection 'red-to-blue' established successfully
+
+**From BLUE machine (friend's machine):**
+
+`bash`
+
+sudo ipsec up blue-to-red
+
+## **Step 7: Verify VPN Status**
+
+**On both machines:**
+
+`bash`
+
+sudo ipsec status
+
+**Should show active connection between the two IPs**
+
+## **Step 8: Capture IPsec Traffic (on BLUE machine)**
+
+`bash`
+
+sudo tcpdump -i any -w ipsec_capture.pcap host 192.168.104.13
+
+**IP Usage:** 🔵 **BLUE machine** captures traffic from 🔴 **RED machine IP**
+
+## **Step 9: Test Encrypted Communication**
+
+**From RED machine, ping BLUE machine:**
+
+`bash`
+
+ping 192.168.104.14
+
+**IP Usage:** 🔴 **Your IP** → 🔵 **Friend's IP** (traffic will be encrypted via IPsec)
+
+## **Step 10: Analyze Traffic with Wireshark**
+
+**On BLUE machine:**
+
+`bash`
+
+wireshark ipsec_capture.pcap
+
+**Expected Result:** ESP (Encrypted Security Payload) packets visible instead of plain ICMP
+
+## **Step 11: Troubleshoot Connection Issues (From Your Practical)**
+
+**If connection fails like yours did:**
+
+`bash`
+
+*# Check firewall rules*
+sudo iptables -L
+
+*# Check if both machines have matching algorithms*
+sudo ipsec listciphers
+
+*# Verify pre-shared key is identical on both machines*
+sudo cat /etc/ipsec.secrets
