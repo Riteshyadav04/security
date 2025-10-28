@@ -1,0 +1,99 @@
+## **Part A: RSA Demonstration (Manual Method)**
+
+## **Step 1: Open CrypTool RSA Demo**
+
+- Launch CrypTool application
+- Select **RSA Demonstration** option
+
+## **Step 2: Set Prime Numbers**
+
+`text`
+
+`Prime number p: 211
+Prime number q: 233`
+
+**Auto-calculated RSA parameters:**
+
+`text`
+
+`RSA modulus N: 49163
+phi(N) = (p-1)(q-1): 48720
+Public key e: 2^16+1 (65537)
+Private key d: 44273`
+
+## **Step 3: Enter Message for Encryption**
+
+`text`
+
+`Input text: Abhishek Jamdade`
+
+**Text gets segmented:**
+
+`textA#b#h#i#s#h#e#k #J#a#m#d#a#d#e
+Numbers: 065 #098 #104 #105 #115 #104 #101 #107 #074 #097 #109 #100 #097 #100 #101`
+
+## **Step 4: Generate Ciphertext**
+
+**Encryption formula:** **`c[i] = m[i]^e (mod N)`**
+
+**Result:**
+
+`text`
+
+`Ciphertext: 03316 #24394 #23366 #20714 #06205 #23366 #07428 #30861 #46430 #18504 #33521 #42283`
+
+## **Step 5: Decrypt Back to Plaintext**
+
+**Decryption formula:** **`m[i] = c[i]^d (mod N)`**
+
+**Result:**
+
+`text`
+
+`Decrypted: AbhishekJamdade`
+
+## **Part B: Asymmetric Key Pair Generation**
+
+## **Step 6: Generate New Key Pair**
+
+**Settings:**
+
+`text`
+
+`Algorithm: RSA
+Bit length: 1024
+Last name: Jamdade
+First name: Abhishek
+PIN: xxxxxx`
+
+## **Step 7: Key Generation Success**
+
+**Generated key identifier:**
+
+`text`
+
+`"[Jamdade] [Abhishek] [RSA-1024] [1759989680]"
+Creation time: 1.366 seconds`
+
+## **Part C: Digital Signature Demonstration**
+
+## **Step 8: Generate Hash of Message**
+
+`text`
+
+`Plaintext: Abhishek Jamdade
+SHA-1 Hash: 17f0bae88e625f91c762516662167976a0b3bf80`
+
+## **Step 9: Apply RSA Signature to Hash**
+
+`text`
+
+`Input hash: 17f0bae88e625f91c762516662167976a0b3bf80`
+
+**Generated Digital Signature:**
+
+`text`
+
+`Hex format: 224926ff86146302fe5bea8b6682ced982abb33657d43eb4e4673b0b28aeb5al...
+Base64: Ikkm/4YUYwL+W+qLZoL02YKrszZX1D605Gc7CyiutaFl+P0bL8FGeQsgwT1tA2+L...
+Status: Success! Digital signature generated in 2ms`
