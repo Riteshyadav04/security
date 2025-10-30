@@ -1,19 +1,39 @@
-10.To simulate a phishing attack using Zphisher.
-
-step1:
+Steps to Perform:
+# Step 1: Move to the Downloads directory
 cd Downloads
-git clone https://github.com/htr-tech/zphisher.git
 
-step2:
-ls
+# Step 2: Clone the Zphisher tool from GitHub
+git clone git://github.com/htr-tech/zphisher.git
+
+# Step 3: Move into the Zphisher directory
 cd zphisher
+
+# Step 4: Run the tool
 bash zphisher.sh
 
-step3:
-select type of attack
-eg-insta
-01 login page
-01=localhost
-custom3 port=yes
-choose custom port(3000)
-open the link 
+Execution Steps:
+
+After running the tool, it will start in the terminal.
+
+It will show a menu of websites (e.g., Facebook, Instagram, Google, LinkedIn, etc.).
+
+Choose the number for which you want to create a phishing page.
+
+Example: For LinkedIn → enter 14
+
+Next, it asks for hosting options:
+
+Type 1 for localhost.
+
+When asked for a custom port, type n for No.
+
+The phishing page will now be hosted locally at:
+
+http://127.0.0.1:8080
+
+
+Open this URL in your browser — you’ll see the fake (phishing) login page.
+
+Enter any test username and password.
+
+Go back to the terminal — the entered credentials will be displayed there.
