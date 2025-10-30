@@ -44,6 +44,20 @@ step14:
 nmap -sP 192.168.43.32 192.168.43.169
 
 
+• nmap -p 80,21,23 <IP>: Scan specific ports 80, 21, and 23 on target.
+• nmap -p 80 <IP>: Scan port 80 only.
+• nmap -open <IP>: (Incorrect, no such option; maybe meant -open or --open to show
+only open ports).
+• nmap --top-ports 5 <IP>: Scan top 5 common ports.
+• nmap -sS <IP>: SYN stealth scan (requires root).
+• nmap -O <IP>: OS detection (requires root).
+• sudo nmap -O <IP>: OS detection with root privileges.
+• sudo nmap -sT <IP>: TCP connect scan using full TCP handshake.
+• sudo nmap -sF <IP>: FIN scan (stealth scan with FIN packets).
+• sudo nmap -sX <IP>: Xmas scan (stealth scan with FIN, PSH, URG flags).
+• sudo nmap -sN <IP>: Null scan (no TCP flags set).
+• sudo nmap -sP <IP>: Ping scan to check host availability (now -sn)
+
 
 
 
