@@ -23,3 +23,18 @@ sha256sum ubuntu-14.04.6-server-amd64.iso
 check with this website:
 https://releases.ubuntu.com/trusty/
 
+
+
+
+
+
+echo This is demo of md5sum>example.txt
+md5sum example.txt
+echo This is demo of md5sum integrity>example.txt
+md5sum example.txt
+sha1sum example.txt
+echo testing sha1 > example.txt
+sha1sum example.txt
+sha256sum example.txt
+sha512sum example.txt
+sha384sum example.txt
